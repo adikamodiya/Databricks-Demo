@@ -1,0 +1,144 @@
+resources:
+  jobs:
+    Orchestration_Demo_1_Multi_Task_Job:
+      name: Orchestration Demo 1 - Multi-Task Job
+      email_notifications:
+        on_failure:
+          - custom001x@gmail.com
+      health:
+        rules:
+          - metric: RUN_DURATION_SECONDS
+            op: GREATER_THAN
+            value: 900
+      schedule:
+        quartz_cron_expression: 0 0 9 * * ?
+        timezone_id: UTC
+        pause_status: PAUSED
+      tasks:
+        - task_key: ingest
+          notebook_task:
+            notebook_path: /Workspace/Users/custom001x@gmail.com/projects/demo-1/01_ingest_bronze
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              job_id: "{{job_id}}"
+              run_id: "{{run_id}}"
+            source: WORKSPACE
+          max_retries: 1
+          min_retry_interval_millis: 10000
+          timeout_seconds: 600
+          description: "Task 1 - Ingest: COPY INTO loads every NEW csv file from the
+            volume into the catalog's bronze.sales_orders (already-loaded files
+            skipped automatically) and stamps new rows with ingested_at. Logs
+            job_id/run_id in the audit log."
+          environment_key: Default
+        - task_key: validate
+          depends_on:
+            - task_key: ingest
+          notebook_task:
+            notebook_path: /Workspace/Users/custom001x@gmail.com/projects/demo-1/02_validate_quality
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              window_minutes: "{{job.parameters.window_minutes}}"
+              job_id: "{{job_id}}"
+              run_id: "{{run_id}}"
+            source: WORKSPACE
+          max_retries: 1
+          min_retry_interval_millis: 10000
+          timeout_seconds: 600
+          description: "Task 2 - Validate: counts rows ingested in the last window_minutes
+            minutes and publishes row_count as a task value (used by the If/Else
+            condition task). Logs job_id/run_id in the audit log."
+          environment_key: Default
+        - task_key: check_row_count
+          depends_on:
+            - task_key: validate
+          condition_task:
+            op: GREATER_THAN
+            left: "{{tasks.validate.values.row_count}}"
+            right: "0"
+          description: "Task 3 - If/Else condition (no compute): compares the task value
+            row_count from validate against 0. TRUE -> transform_publish
+            (silver) -> gold_kpi, FALSE -> notify_no_data."
+        - task_key: transform_publish
+          depends_on:
+            - task_key: check_row_count
+              outcome: "true"
+          notebook_task:
+            notebook_path: /Workspace/Users/custom001x@gmail.com/projects/demo-1/03_transform_publish
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              window_minutes: "{{job.parameters.window_minutes}}"
+              job_id: "{{job_id}}"
+              run_id: "{{run_id}}"
+            source: WORKSPACE
+          max_retries: 1
+          min_retry_interval_millis: 10000
+          timeout_seconds: 600
+          description: "Task 4 - Transform to Silver (SCD1, TRUE branch): cleans the new
+            rows (last window_minutes) and MERGEs them into the catalog's
+            silver.sales_orders by order_id - one row per order, latest values
+            win (SCD Type 1). Logs job_id/run_id in the audit log."
+          environment_key: Default
+        - task_key: gold_kpi
+          depends_on:
+            - task_key: transform_publish
+          notebook_task:
+            notebook_path: /Workspace/Users/custom001x@gmail.com/projects/demo-1/06_gold_kpi
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              job_id: "{{job_id}}"
+              run_id: "{{run_id}}"
+            source: WORKSPACE
+          timeout_seconds: 300
+          description: "Task 5 - Gold KPIs: one CREATE OR REPLACE TABLE SQL statement
+            rebuilds gold.sales_kpi (KPIs per category) from silver. Safe to run
+            any number of times. Logs job_id/run_id in the audit log."
+          environment_key: Default
+        - task_key: fail_demo
+          depends_on:
+            - task_key: gold_kpi
+          notebook_task:
+            notebook_path: /Workspace/Users/custom001x@gmail.com/projects/demo-1/05_fail_demo
+            base_parameters:
+              allow_success: "{{job.parameters.allow_success}}"
+            source: WORKSPACE
+          max_retries: 2
+          min_retry_interval_millis: 10000
+          timeout_seconds: 300
+          description: "Task 7 - Scenario C: intentionally fails while allow_success !=
+            true. Configured with max_retries=2 so the run shows 3 attempts,
+            then fails -> demo the on_failure email, Repair & Rerun (only failed
+            tasks re-run)."
+          environment_key: Default
+        - task_key: notify_no_data
+          depends_on:
+            - task_key: check_row_count
+              outcome: "false"
+          notebook_task:
+            notebook_path: /Workspace/Users/custom001x@gmail.com/projects/demo-1/04_notify_no_data
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+              window_minutes: "{{job.parameters.window_minutes}}"
+              row_count: "{{tasks.validate.values.row_count}}"
+              job_id: "{{job_id}}"
+              run_id: "{{run_id}}"
+            source: WORKSPACE
+          timeout_seconds: 300
+          description: "Task 6 - Notify (FALSE branch): runs only when 0 rows were
+            ingested in the last window_minutes - prints notification + audit
+            row with job_id/run_id."
+          environment_key: Default
+      queue:
+        enabled: true
+      parameters:
+        - name: allow_success
+          default: "false"
+        - name: catalog
+          default: demo1
+        - name: window_minutes
+          default: "15"
+      environments:
+        - environment_key: Default
+          spec:
+            environment_version: "2"
+      performance_target: PERFORMANCE_OPTIMIZED

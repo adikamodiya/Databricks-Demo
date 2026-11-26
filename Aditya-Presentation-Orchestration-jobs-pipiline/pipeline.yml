@@ -1,0 +1,16 @@
+resources:
+  pipelines:
+    pipeline_demo_2_etl_pipeline:
+      name: demo-2-etl-pipeline
+      libraries:
+        - glob:
+            include: /Workspace/Users/custom001x@gmail.com/projects/demo-2/pipeline/transformation/**
+      schema: silver
+      continuous: false
+      development: false
+      photon: true
+      edition: ADVANCED
+      channel: CURRENT
+      catalog: demo2
+      serverless: true
+      root_path: /Workspace/Users/custom001x@gmail.com/projects/demo-2/pipeline

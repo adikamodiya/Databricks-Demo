@@ -1,0 +1,11 @@
+order_id,customer_name,product,category,quantity,unit_price,order_date
+1001,  Ravi Kumar  ,Laptop,Electronics,1,85000.50,2026-11-01
+1002,Priya Singh,Mouse,Electronics, 3 ,450.00,2026-11-02
+1003,   Amit Verma,Desk Chair,Furniture,2,4999.99,2026-11-03
+1004,Sara Khan,Notebook,Stationery,10,99.50,2026-11-04
+1005,  Ravi Kumar  ,Monitor,Electronics,2,12000.00,2026-11-05
+1006,Neha Gupta,Standing Desk,Furniture,1,18999.00,2026-11-06
+1007,Vikram Rao,Pen Set,Stationery,5,250.75,2026-11-07
+1008,Priya Singh,Keyboard,Electronics,,1999.00,2026-11-08
+1009,   Anjali Mehta,Bookshelf,Furniture,1,,2026-11-09
+1010,Sameer Patel,Webcam,Electronics,2,3499.00,2026-11-10
