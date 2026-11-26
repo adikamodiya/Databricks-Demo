@@ -1,0 +1,90 @@
+{
+ "state_version": 3,
+ "cli_version": "1.27.0",
+ "lineage": "4792ae98-5574-4b7e-a9b1-1038d2770faf",
+ "serial": 1,
+ "state": {
+  "resources.jobs.sales_dabs_job": {
+   "__id__": "1033890422369568",
+   "state": {
+    "deployment": {
+     "kind": "BUNDLE",
+     "metadata_file_path": "/Workspace/Users/divyankapal22@gmail.com/.bundle/sales_dabs/prod/state/metadata.json"
+    },
+    "edit_mode": "UI_LOCKED",
+    "format": "MULTI_TASK",
+    "max_concurrent_runs": 1,
+    "name": "[prod] sales_dabs_job",
+    "parameters": [
+     {
+      "default": "prod",
+      "name": "catalog"
+     }
+    ],
+    "queue": {
+     "enabled": true
+    },
+    "run_as": {
+     "service_principal_name": "81dd2190-eb6d-4ee7-997d-a2e6b1857956"
+    },
+    "tasks": [
+     {
+      "max_retries": 0,
+      "notebook_task": {
+       "base_parameters": {
+        "catalog": "{{job.parameters.catalog}}"
+       },
+       "notebook_path": "/Workspace/Users/divyankapal22@gmail.com/.bundle/sales_dabs/prod/files/src/00_setup"
+      },
+      "task_key": "00_setup"
+     },
+     {
+      "depends_on": [
+       {
+        "task_key": "00_setup"
+       }
+      ],
+      "max_retries": 0,
+      "notebook_task": {
+       "base_parameters": {
+        "catalog": "{{job.parameters.catalog}}"
+       },
+       "notebook_path": "/Workspace/Users/divyankapal22@gmail.com/.bundle/sales_dabs/prod/files/src/01_bronze_ingest"
+      },
+      "task_key": "01_bronze_ingest"
+     },
+     {
+      "depends_on": [
+       {
+        "task_key": "01_bronze_ingest"
+       }
+      ],
+      "max_retries": 0,
+      "notebook_task": {
+       "base_parameters": {
+        "catalog": "{{job.parameters.catalog}}"
+       },
+       "notebook_path": "/Workspace/Users/divyankapal22@gmail.com/.bundle/sales_dabs/prod/files/src/02_silver_clean"
+      },
+      "task_key": "02_silver_clean"
+     },
+     {
+      "depends_on": [
+       {
+        "task_key": "02_silver_clean"
+       }
+      ],
+      "max_retries": 0,
+      "notebook_task": {
+       "base_parameters": {
+        "catalog": "{{job.parameters.catalog}}"
+       },
+       "notebook_path": "/Workspace/Users/divyankapal22@gmail.com/.bundle/sales_dabs/prod/files/src/03_gold_kpis"
+      },
+      "task_key": "03_gold_kpis"
+     }
+    ]
+   }
+  }
+ }
+}
