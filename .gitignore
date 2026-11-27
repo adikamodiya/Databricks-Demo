@@ -1,0 +1,2 @@
+# Never commit the nested repo's internal Git metadata
+Manpreet Databricks-Practice/.git/
