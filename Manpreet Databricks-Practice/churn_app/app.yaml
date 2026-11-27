@@ -1,0 +1,5 @@
+command: ["python", "app.py"]
+
+env:
+  - name: "CHURN_WAREHOUSE_ID"
+    value: "72ea3b2da9f7464d"
