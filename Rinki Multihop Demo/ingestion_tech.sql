@@ -13,7 +13,7 @@
 -- MAGIC
 -- MAGIC
 -- MAGIC
--- MAGIC ![](/Workspace/Users/rinkimehra068@gmail.com/Multihop Demo/batch_ing.JPG)
+-- MAGIC ![](/Workspace/Users/rinkimehra068@gmail.com/Databricks-Demo/Rinki Multihop Demo/batch_ing.JPG)
 
 -- COMMAND ----------
 
@@ -41,7 +41,7 @@ select count(*) from dev.bronze.sales
 -- MAGIC
 -- MAGIC
 -- MAGIC
--- MAGIC ![](/Workspace/Users/rinkimehra068@gmail.com/Multihop Demo/incremental.JPG)
+-- MAGIC ![](/Workspace/Users/rinkimehra068@gmail.com/Databricks-Demo/Rinki Multihop Demo/incremental.JPG)
 
 -- COMMAND ----------
 
@@ -68,7 +68,7 @@ COPY_OPTIONS ('mergeSchema' = 'true');
 -- MAGIC
 -- MAGIC
 -- MAGIC
--- MAGIC ![](/Workspace/Users/rinkimehra068@gmail.com/Multihop Demo/streaming.JPG)
+-- MAGIC ![](/Workspace/Users/rinkimehra068@gmail.com/Databricks-Demo/Rinki Multihop Demo/streaming.JPG)
 
 -- COMMAND ----------
 

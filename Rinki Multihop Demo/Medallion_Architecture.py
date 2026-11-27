@@ -9,8 +9,12 @@
 # MAGIC Medallion Architecture is a data design pattern used in Databricks Lakehouse to organize data into three layers: **Bronze, Silver and Gold.**
 # MAGIC
 # MAGIC
-# MAGIC
-# MAGIC ![](/Workspace/Users/rinkimehra068@gmail.com/Multihop Demo/Multihop.png)
+# MAGIC ![](/Workspace/Users/rinkimehra068@gmail.com/Databricks-Demo/Rinki Multihop Demo/Multihop.png)
+
+# COMMAND ----------
+
+dbutils.widgets.text("catalog", "dev")
+catalog = dbutils.widgets.get("catalog")
 
 # COMMAND ----------
 
@@ -21,11 +25,6 @@
 # MAGIC - Basic metadata is added, such as ingestion timestamp and source file name, path.
 # MAGIC - Maintains historical data.
 # MAGIC - Supports auditing, data lineage and reprocessing.
-
-# COMMAND ----------
-
-dbutils.widgets.text("catalog", "dev")
-catalog = dbutils.widgets.get("catalog")
 
 # COMMAND ----------
 
